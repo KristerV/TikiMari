@@ -8,14 +8,14 @@ All the files are currently on [Google Drive](https://drive.google.com/drive/u/0
 
 Design will be mobile first to enable easy sharing across platforms.
 
-- [ ] Phase 1 - Clothing designer
-  - [ ] User side
+- [ ] **Phase 1 - Clothing designer**
+  - [ ] **User side**
     - [ ] Show the final design
     - [ ] Constructor: change parts of design or start from scratch
     - [ ] Somehow see what parts this design consists of in text
     - [ ] Save session - user can return to hir custom design
     - [ ] Custom design URL - user can share effortlessly
-  - [ ] Tikimari side
+  - [ ] **Tikimari side**
     - [ ] Easily upload images somewhere like dropbox
     - [ ] Connect images to eachother via JSON
       - [ ] id
@@ -23,8 +23,8 @@ Design will be mobile first to enable easy sharing across platforms.
       - [ ] Path
       - [ ] Name
       - [ ] Children
-- [ ] Phase 2 - Gallery
-  - [ ] User side
+- [ ] **Phase 2 - Gallery**
+  - [ ] **User side**
     - [ ] User sees many photos of completed designs
     - [ ] Filtering by types of event/gender
     - [ ] By clicking on one user also sees the drawing (design) behind it
@@ -32,7 +32,7 @@ Design will be mobile first to enable easy sharing across platforms.
   - [ ] Tikimari side
     - [ ] Upload pictures to somewhere comfy like dropbox
     - [ ] Define each images construct a.k.a. what design elements are at play (or just a link)
-- [ ] Phase 3 - Final
+- [ ] **Phase 3 - Final**
   - [ ] User can always return to hir custom design
   - [ ] "How to measure yourself" page
   
