@@ -29,7 +29,7 @@ Design will be mobile first to enable easy sharing across platforms.
     - [ ] Filtering by types of event/gender
     - [ ] By clicking on one user also sees the drawing (design) behind it
     - [ ] User can now 1. back to gallery 2. customize this design 3. cherry-pick
-  - [ ] Tikimari side
+  - [ ] **Tikimari side**
     - [ ] Upload pictures to somewhere comfy like dropbox
     - [ ] Define each images construct a.k.a. what design elements are at play (or just a link)
 - [ ] **Phase 3 - Final**
