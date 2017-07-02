@@ -2,6 +2,8 @@
 
 Tikimari is a custom clothing store. The website aims to let people design their own clothes using Tikimari's pre-defined pieces.
 
+All the files are currently on [Google Drive](https://drive.google.com/drive/u/0/folders/0B7z6gxP0LvZWTWRQcWJwaFVvM3M).
+
 # Development
 
 Design will be mobile first to enable easy sharing across platforms.
