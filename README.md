@@ -14,7 +14,11 @@ Design will be mobile first to enable easy sharing across platforms.
     - [ ] Constructor: change parts of design or start from scratch
     - [ ] Somehow see what parts this design consists of in text
     - [ ] Save session - user can return to hir custom design
-    - [ ] Custom design URL - user can share effortlessly
+    - [ ] Custom design URL - user can share effortlessly (char == design && int == tex)
+    - [ ] Clicking on drawing will present an example photo of that piece
+    - [ ] User sees a texture for every piece of design
+    - [ ] Clicking on texture will show an example of it in photo
+    - [ ] Clicking on texture will enable to change it
   - [ ] **Tikimari side**
     - [ ] Easily upload images somewhere like dropbox
     - [ ] Connect images to eachother via JSON
@@ -35,6 +39,9 @@ Design will be mobile first to enable easy sharing across platforms.
 - [ ] **Phase 3 - Final**
   - [ ] User can always return to hir custom design
   - [ ] "How to measure yourself" page
+  - [ ] "Order this design" page
+    - [ ] Enter measurements
+    - [ ] Enter contact details
   
 # Others like it
 
