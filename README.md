@@ -56,7 +56,7 @@ Design will be mobile first to enable easy sharing across platforms.
 # From scanning to vector
 
 1. When scanning use white background and press on the lid to remove shadows.
-1. To convert from image to vector use imagemagick in Linux: 
+1. To convert from image to vector use imagemagick in Linux: `for PHOTO in LEGO/*; do BASE=`basename $PHOTO`; echo "Converting $PHOTO"; convert "$PHOTO" -fuzz 30% -transparent white "LEGO-vector/$BASE.svg"; done`
 
 # Copyright
 
