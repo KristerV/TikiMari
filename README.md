@@ -42,11 +42,21 @@ Design will be mobile first to enable easy sharing across platforms.
   - [ ] "Order this design" page
     - [ ] Enter measurements
     - [ ] Enter contact details
+
+- Checks
+  - id's have no numbers
+  - missing images
+  - textures have no chars
   
-# Others like it
+# Others apps like it
 
 - https://www.spreadshirt.com/create-your-own?department=0&productType=812&appearance=2
 - https://paom.com/editor?do=basic-sweatshirt
+
+# From scanning to vector
+
+1. When scanning use white background and press on the lid to remove shadows.
+1. To convert from image to vector use imagemagick in Linux: 
 
 # Copyright
 
