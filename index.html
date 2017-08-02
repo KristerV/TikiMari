@@ -21,6 +21,8 @@
 		<script src="datatree.js"></script>
 		<script>
 			$( document ).ready(function() {
+				var menuItems = [];
+				var menuTree = {};
 
 				// Get URL
 				var code = findGetParameter('design');
@@ -38,7 +40,6 @@
 						lastTypeInt = isInt;
 						continue;
 					}
-
 					// Otherwise the combo is done
 
 					// combo is texture (cloth example)
@@ -47,30 +48,37 @@
 					}
 					// combo is string (drawing)
 					else {
+						var des = datatree.designs[combo];
 						
 						// Add Menuitem
+						if (!menuTree[des.category])
+							menuTree[des.category] = [];
+						menuTree[des.category].concat(des.children);
+						for (var i = 0; i < des.children.length; i++) {
+							var subDes = datatree.designs[des.children[i]];
+							if (!menuTree[subDes.category])
+								menuTree[subDes.category] = [];
+							menuTree[subDes.category] = menuTree[subDes.category].concat(subDes.children);
+						}
 
 						// Add drawing
-						console.log(combo)
-						$('#design-space').append('<img src="'+datatree.designs[combo].svgURL+'">');
+						$('#design-space').append('<img src="'+des.svgURL+'">');
 						combo = '';
 					}
 				}
 
-
-				/*
-				var i = 0;
-				var lastIsInt = false;
-				while(i < code.length) {
-					var char = code[i];
-					var isInt = !isNaN(parseInt(char));
-				}*/
-
-
 				// Display menu
-
-
-				// Display drawings
+				console.log(menuTree)
+				var menuHTML = "";
+				var cats = Object.keys(menuTree);
+				for (var i = 0; i < cats.length; i++) {
+					menuHTML += "<p>"+cats[i]+"</p>";
+					var items = menuTree[cats[i]];
+					for (var j = 0; j < items.length; j++) {
+						menuHTML += '<a target="_blank">'+items[i]+'</a><br>';
+					}
+				}
+				document.getElementById('menu-space').innerHTML = menuHTML;
 
 			});
 
