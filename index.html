@@ -25,61 +25,31 @@
 				var menuTree = {};
 
 				// Get URL
-				var code = findGetParameter('design');
-				if (!code) window.location.replace("?design=m0s0tt0");
+				var code = getGetParameter('design');
+				if (!code) window.location.replace("?design=m0<s0<tt0>>");
 
-				// For each character
-				var combo = '';
-				var lastTypeInt;
-				for(var i = 0; i < code.length; i++) {
-
-					// If type is same as last: add to combo construction
-					var isInt = !isNaN(parseInt(code[i]));
-					if (combo.length === 0 || lastTypeInt === isInt) {
-						combo += code[i];
-						lastTypeInt = isInt;
-						continue;
-					}
-					// Otherwise the combo is done
-
-					// combo is texture (cloth example)
-					if (lastTypeInt) {
-
-					}
-					// combo is string (drawing)
-					else {
-						var des = datatree.designs[combo];
-						
-						// Add Menuitem
-						if (!menuTree[des.category])
-							menuTree[des.category] = [];
-						menuTree[des.category].concat(des.children);
-						for (var i = 0; i < des.children.length; i++) {
-							var subDes = datatree.designs[des.children[i]];
-							if (!menuTree[subDes.category])
-								menuTree[subDes.category] = [];
-							menuTree[subDes.category] = menuTree[subDes.category].concat(subDes.children);
-						}
-
-						// Add drawing
-						$('#design-space').append('<img src="'+des.svgURL+'">');
-						combo = '';
-					}
-				}
+				// Convert to design object tree
+				var designTree = designCodeToTree(code);
 
 				// Display menu
-				var menuHTML = "";
-				var cats = Object.keys(menuTree);
-				for (var i = 0; i < cats.length; i++) {
-					menuHTML += "<p>"+cats[i]+"</p>";
-					var items = menuTree[cats[i]];
-					for (var j = 0; j < items.length; j++) {
-						menuHTML += '<a target="_blank">'+items[i]+'</a><br>';
-					}
-				}
-				document.getElementById('menu-space').innerHTML = menuHTML;
+				document.getElementById('menu-space').innerHTML = "<p>none</p>";
 
 			});
+
+			function getMenuListTree(designTree, currentPath) {
+				var subTree = cloneObject(designTree);
+				for (var i = 0; i < currentPath.length; i++) {
+					subTree = subTree[currentPath[i]];
+					if (!subTree.childrenActive) break;
+					subTree = subTree.childrenActive;
+				}
+				return subTree;
+			}
+
+			function cloneObject(obj) {
+				// https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+				return JSON.parse(JSON.stringify(obj));
+			}
 
 			function designCodeToTree(code) {
 				var designTree = {};
@@ -119,7 +89,7 @@
 				return code;
 			}
 
-			function findGetParameter(parameterName) {
+			function getGetParameter(parameterName) {
 				var result = null,
 					tmp = [];
 				location.search
