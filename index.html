@@ -25,25 +25,86 @@
 				var menuTree = {};
 
 				// Get URL
-				var code = getGetParameter('design');
-				if (!code) window.location.replace("?design=m0<s0<tt0>>");
+				var getParams = getSerializedGetParams();
+				var code = getParams.design;
+				var menu = getParams.menu; // [null, categories, (other)]
+				// Disable redirect until building of design works.
+				// if (!code) window.location.replace("?design=m0<s0<tt0>>");
 
-				// Convert to design object tree
+				// Convert data
 				var designTree = designCodeToTree(code);
+				var cats = getAllActiveCategories(designTree);
+				var designList = getAllActiveDesigns(designTree);
+				var availableItems = getChildrenOfActiveCategory(designTree, cats[2]);
+				console.log(cats)
+				console.log(designList);
+				console.log(availableItems)
 
 				// Display menu
-				document.getElementById('menu-space').innerHTML = "<p>none</p>";
+				var html = "";
+				if (menu)
+					html = getDesignsMenuHTML(availableItems);
+				else
+					html += getCatsMenuHTML(cats);
+				document.getElementById('menu-space').innerHTML = html;
 
 			});
 
-			function getMenuListTree(designTree, currentPath) {
-				var subTree = cloneObject(designTree);
-				for (var i = 0; i < currentPath.length; i++) {
-					subTree = subTree[currentPath[i]];
-					if (!subTree.childrenActive) break;
-					subTree = subTree.childrenActive;
+			function getCatsMenuHTML(cats) {
+				var html = "";
+				html += cats.join(", ");
+				return html;
+			}
+
+			function getDesignsMenuHTML(designList) {
+				var html = "<ul>";
+				for (var i = 0; i < designList.length; i++) {
+					html += designList[i].name + ", ";
 				}
-				return subTree;
+				html += "</ul>";
+				return html;
+			}
+
+			function getChildrenOfActiveCategory(designTree, cat) {
+				var keys = Object.keys(designTree);
+				var designList = getAllActiveDesigns(designTree);
+				var childrenOfCategory = [];
+				for (var i = 0; i < designList.length; i++) {
+					var dli = designList[i];
+					var kids = datatree.designs[dli].children;
+					for (var j = 0; j < kids.length; j++) {
+						var kid = datatree.designs[kids[j]];
+						if (kid.category === cat)
+							childrenOfCategory.push(kid);
+					}
+				}
+				return childrenOfCategory;
+			}
+
+			function getAllActiveDesigns(designTree) {
+				var designs = [];
+				var keys = Object.keys(designTree);
+				for (var i = 0; i < keys.length; i++) {
+					designs.push(keys[i]);
+					var d = designTree[keys[i]];
+					if (d.childrenActive)
+						designs = designs.concat(getAllActiveDesigns(d.childrenActive));
+				}
+				return designs;
+			}
+
+			function getAllActiveCategories(designTree) {
+				var cats = [];
+				var keys = Object.keys(designTree);
+				for (var i = 0; i < keys.length; i++) {
+					var d = designTree[keys[i]];
+					cats.push(d.category);
+					if (d.childrenActive) cats = cats.concat(getAllActiveCategories(d.childrenActive));
+				}
+				var uniqueCats = cats.filter(function(item, pos, self) {
+					return self.indexOf(item) == pos;
+				});
+				return uniqueCats;
 			}
 
 			function cloneObject(obj) {
@@ -99,6 +160,16 @@
 					  tmp = item.split("=");
 					  if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
 					});
+				return result;
+			}
+
+			function getSerializedGetParams() {
+				var result = {};
+				var tmp = [];
+				location.search.substr(1).split("&").forEach(function (item) {
+					tmp = item.split("=");
+					result[tmp[0]] = decodeURIComponent(tmp[1]);
+				});
 				return result;
 			}
 		</script>
