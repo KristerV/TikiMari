@@ -68,7 +68,6 @@
 				}
 
 				// Display menu
-				console.log(menuTree)
 				var menuHTML = "";
 				var cats = Object.keys(menuTree);
 				for (var i = 0; i < cats.length; i++) {
@@ -81,6 +80,44 @@
 				document.getElementById('menu-space').innerHTML = menuHTML;
 
 			});
+
+			function designCodeToTree(code) {
+				var designTree = {};
+				var codeArray = designCodeToArray(code);
+				var lastC = "";
+				for (var i = 0; i < codeArray.length; i++) {
+					var c = codeArray[i];
+					if (c[0] === "<") {
+						designTree[lastC].childrenActive = designCodeToTree(c.slice(1, c.length-1));
+						i++;
+					} else if (isNaN(parseInt(c))) {
+						designTree[c] = datatree.designs[c];
+						lastC = c;
+					}
+				}
+				return designTree;
+			}
+
+			function designCodeToArray(code) {
+				return code.split(/(\d|<.*>)/g).filter(Boolean); // filter removes empty strings
+			}
+
+			function designTreeToCode(dtree) {
+				var code = "";
+				var keys = Object.keys(dtree);
+				for (var i = 0; i < keys.length; i++) {
+					code += keys[i] + "0";
+					var kids = dtree[keys].childrenActive;
+					if (kids) {
+						for (var j = 0; j < kids.length; j++) {
+							code += "<";
+							code += designTreeToCode(kids[j]);
+							code += ">";
+						}
+					}
+				}
+				return code;
+			}
 
 			function findGetParameter(parameterName) {
 				var result = null,
