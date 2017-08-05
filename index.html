@@ -21,13 +21,12 @@
 		<script src="datatree.js"></script>
 		<script>
 			$( document ).ready(function() {
-				console.log(decodeURIComponent(location.search));
-
 				var menuItems = [];
 				var menuTree = {};
 
 				// Get URL
 				var getParams = getSerializedGetParams();
+				console.info("getParams", getParams)
 				// Disable redirect until building of design works.
 				// if (!code) window.location.replace("?design=m0<s0<tt0>>");
 
@@ -38,7 +37,7 @@
 				console.info("cats", cats)
 				var designTreeList = getAllActiveDesigns(designTree);
 				console.info("designTreeList", designTreeList)
-				var availableItems = getChildrenOfActiveCategory(designTree, getParams.menu);
+				var availableItems = getAvailableItemsForCategory(designTree, getParams.menu);
 				console.info("availableItems", availableItems)
 				var rootDesigns = getRootDesigns();
 				console.info("rootDesigns", rootDesigns)
@@ -85,7 +84,6 @@
 					var clone = cloneObject(designTree);
 					var newTree = replaceDesignInTreeByCategory(keys[i], availableDesigns[keys[i]], clone);
 					var newCode = designTreeToCode(newTree);
-					console.log(newCode)
 					var link = '?design=' + newCode;
 					html += '<li><a href="'+link+'">' + availableDesigns[keys[i]].name + '</a></li>'
 				}
@@ -152,19 +150,27 @@
 				return roots
 			}
 
-			function getChildrenOfActiveCategory(designTree, cat) {
+			function getAvailableItemsForCategory(designTree, cat) {
 				var designList = getAllActiveDesigns(designTree);
-				var childrenOfCategory = {};
+				var debug = false;
+				if (designList[0] === "t") debug = true;
+				var availableItems = {};
 				for (var i = 0; i < designList.length; i++) {
 					var dli = designList[i];
-					var dataDesign = datatree.designs[dli]
-					if (dataDesign.category !== cat) continue;
+					var dataDesign = datatree.designs[dli];
 					var kids = dataDesign.children;
-					for (var j = 0; j < kids.length; j++) {
-						childrenOfCategory[kids[j]] = datatree.designs[kids[j]];
-					}
+
+					// Current design is match
+					if (dataDesign.category === cat)
+						availableItems[dli] = dataDesign;
+
+					// Recurse for children
+					var newTree = {};
+					for (var j = 0; j < kids.length; j++)
+						newTree[kids[j]] = datatree.designs[kids[j]];
+					availableItems = mergeObjects(availableItems, getAvailableItemsForCategory(newTree, cat));
 				}
-				return childrenOfCategory;
+				return availableItems;
 			}
 
 			function getAllActiveDesigns(designTree) {
@@ -177,6 +183,13 @@
 						designs = designs.concat(getAllActiveDesigns(d.childrenActive));
 				}
 				return designs;
+			}
+
+			function mergeObjects(obj1,obj2){
+				var obj3 = {};
+				for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+				for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+				return obj3;
 			}
 
 			function getAllActiveCategories(designTree) {
