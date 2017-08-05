@@ -185,35 +185,22 @@
 				return designs;
 			}
 
-			function mergeObjects(obj1,obj2){
-				var obj3 = {};
-				for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-				for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
-				return obj3;
-			}
 
 			function getAllActiveCategories(designTree) {
 				var cats = [];
-				var keys = Object.keys(designTree);
-				for (var i = 0; i < keys.length; i++) {
-					var d = designTree[keys[i]];
+				var activeDesigns = getAllActiveDesigns(designTree);
+				for (var i = 0; i < activeDesigns.length; i++) {
+					var d = datatree.designs[activeDesigns[i]]
 					cats.push(d.category);
-					var newTree = {};
 					for (var j = 0; j < d.children.length; j++) {
-						newTree[d.children[j]] = datatree.designs[d.children[j]];
+						var dChild = datatree.designs[d.children[j]];
+						cats.push(dChild.category);
 					}
-					cats = cats.concat(getAllActiveCategories(newTree));
 				}
 				var uniqueCats = cats.filter(function(item, pos, self) {
 					return self.indexOf(item) == pos;
 				});
 				return uniqueCats;
-			}
-
-			function cloneObject(obj) {
-				// https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
-				var clone = JSON.parse(JSON.stringify(obj));
-				return clone;
 			}
 
 			function designCodeToTree(code) {
@@ -253,6 +240,27 @@
 				return code;
 			}
 
+			/////////////////////////////////////////
+			// UTILS                               //
+
+
+			function mergeObjects(obj1,obj2){
+				var obj3 = {};
+				for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+				for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+				return obj3;
+			}
+
+			function getSerializedGetParams() {
+				var result = {};
+				var tmp = [];
+				location.search.substr(1).split("&").forEach(function (item) {
+					tmp = item.split("=");
+					result[tmp[0]] = decodeURIComponent(tmp[1]);
+				});
+				return result;
+			}
+
 			function getGetParameter(parameterName) {
 				var result = null,
 					tmp = [];
@@ -266,14 +274,10 @@
 				return result;
 			}
 
-			function getSerializedGetParams() {
-				var result = {};
-				var tmp = [];
-				location.search.substr(1).split("&").forEach(function (item) {
-					tmp = item.split("=");
-					result[tmp[0]] = decodeURIComponent(tmp[1]);
-				});
-				return result;
+			function cloneObject(obj) {
+				// https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+				var clone = JSON.parse(JSON.stringify(obj));
+				return clone;
 			}
 		</script>
 
