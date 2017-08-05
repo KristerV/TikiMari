@@ -20,6 +20,7 @@
 		<script src="jquery-3.2.1.min.js" type="text/javascript"></script>
 		<script src="datatree.js"></script>
 		<script>
+			var urlBrackets = ['_', '~'];
 			$( document ).ready(function() {
 				var menuItems = [];
 				var menuTree = {};
@@ -229,7 +230,7 @@
 				var lastC = "";
 				for (var i = 0; i < codeArray.length; i++) {
 					var c = codeArray[i];
-					if (c[0] === "<") {
+					if (c[0] === urlBrackets[0]) {
 						designTree[lastC].childrenActive = designCodeToTree(c.slice(1, c.length-1));
 						i++;
 					} else if (isNaN(parseInt(c))) {
@@ -242,7 +243,8 @@
 
 			function designCodeToArray(code) {
 				if (!code) return [];
-				return code.split(/(\d|<.*>)/g).filter(Boolean); // filter removes empty strings
+				var r = new RegExp("(\\d|"+urlBrackets[0]+".*"+urlBrackets[1]+")", "g");
+				return code.split(r).filter(Boolean); // filter removes empty strings
 			}
 
 			function designTreeToCode(dtree) {
@@ -252,9 +254,9 @@
 					code += keys[i] + "0";
 					var kids = dtree[keys[i]].childrenActive;
 					if (kids) {
-						code += "<";
+						code += urlBrackets[0];
 						code += designTreeToCode(kids);
-						code += ">";
+						code += urlBrackets[1];
 					}
 				}
 				return code;
