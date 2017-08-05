@@ -113,7 +113,6 @@
 			}
 
 			function replaceDesignInTreeByCategory(dKey, dObj, designTree) {
-				console.log("replaceDesignInTreeByCategory", dKey, dObj, designTree)
 				var keys = Object.keys(designTree);
 
 				if (keys.length === 0) {
@@ -130,7 +129,6 @@
 					// Remove all children of same category (not safe in case of multiple matches)
 					var found = false;
 					for (var j = 0; j < activeKeys.length; j++) {
-						console.log(childrenActive)
 						if (childrenActive[activeKeys[j]].category === dObj.category) {
 							delete childrenActive[activeKeys[j]];
 							found = true;
@@ -175,8 +173,6 @@
 
 			function getAvailableItemsForCategory(designTree, cat) {
 				var designList = getAllActiveDesigns(designTree);
-				var debug = false;
-				if (designList[0] === "t") debug = true;
 				var availableItems = {};
 				for (var i = 0; i < designList.length; i++) {
 					var dli = designList[i];
@@ -187,11 +183,12 @@
 					if (dataDesign.category === cat)
 						availableItems[dli] = dataDesign;
 
-					// Recurse for children
-					var newTree = {};
-					for (var j = 0; j < kids.length; j++)
-						newTree[kids[j]] = datatree.designs[kids[j]];
-					availableItems = mergeObjects(availableItems, getAvailableItemsForCategory(newTree, cat));
+					// Care for children
+					for (var j = 0; j < kids.length; j++) {
+						var kid = datatree.designs[kids[j]];
+						if (kid.category === cat)
+							availableItems[kids[j]] = kid;
+					}
 				}
 				return availableItems;
 			}
