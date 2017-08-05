@@ -187,7 +187,11 @@
 				for (var i = 0; i < keys.length; i++) {
 					var d = designTree[keys[i]];
 					cats.push(d.category);
-					if (d.childrenActive) cats = cats.concat(getAllActiveCategories(d.childrenActive));
+					var newTree = {};
+					for (var j = 0; j < d.children.length; j++) {
+						newTree[d.children[j]] = datatree.designs[d.children[j]];
+					}
+					cats = cats.concat(getAllActiveCategories(newTree));
 				}
 				var uniqueCats = cats.filter(function(item, pos, self) {
 					return self.indexOf(item) == pos;
