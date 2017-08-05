@@ -21,6 +21,8 @@
 		<script src="datatree.js"></script>
 		<script>
 			$( document ).ready(function() {
+				console.log(decodeURIComponent(location.search));
+
 				var menuItems = [];
 				var menuTree = {};
 
@@ -33,17 +35,23 @@
 
 				// Convert data
 				var designTree = designCodeToTree(code);
+				console.info("designTree", designTree)
 				var cats = getAllActiveCategories(designTree);
-				var designList = getAllActiveDesigns(designTree);
-				var availableItems = getChildrenOfActiveCategory(designTree, cats[2]);
-				console.log(cats)
-				console.log(designList);
-				console.log(availableItems)
+				console.info("cats", cats)
+				var designTreeList = getAllActiveDesigns(designTree);
+				console.info("designTreeList", designTreeList)
+				var availableItems = getChildrenOfActiveCategory(designTree, menu);
+				console.info("availableItems", availableItems)
+				var rootDesigns = getRootDesigns();
+				console.info("rootDesigns", rootDesigns)
+				console.info("============================")
 
 				// Display menu
 				var html = "";
 				if (menu)
-					html = getDesignsMenuHTML(availableItems);
+					html = getDesignsMenuHTML(availableItems, designTree);
+				else if (cats.length === 0)
+					html = getDesignsMenuHTML(rootDesigns, designTree);
 				else
 					html += getCatsMenuHTML(cats);
 				document.getElementById('menu-space').innerHTML = html;
@@ -52,30 +60,110 @@
 
 			function getCatsMenuHTML(cats) {
 				var html = "";
-				html += cats.join(", ");
+				for (var i = 0; i < cats.length; i++) {
+					var link = getLinkWithNewCategory(cats[i]);
+					html += '<a href="'+link+'">' + cats[i] + '</a>';
+					html += '<br>';
+				}
 				return html;
 			}
 
-			function getDesignsMenuHTML(designList) {
+			function getLinkWithNewCategory(newCat) {
+				var gets = getSerializedGetParams();
+				gets.menu = newCat;
+				var link = '?';
+				var keys = Object.keys(gets);
+				for (var i = 0; i < keys.length; i++) {
+					link += keys[i] + '=' + gets[keys[i]];
+					if (i < keys.length-1) link += '&';
+				}
+				return link;
+			}
+
+			function getDesignsMenuHTML(availableDesigns, designTree) {
 				var html = "<ul>";
-				for (var i = 0; i < designList.length; i++) {
-					html += designList[i].name + ", ";
+				var keys = Object.keys(availableDesigns);
+				for (var i = 0; i < keys.length; i++) {
+					var clone = cloneObject(designTree);
+					var newTree = replaceDesignInTreeByCategory(keys[i], availableDesigns[keys[i]], clone);
+					var newCode = designTreeToCode(newTree);
+					console.log(newCode)
+					var link = '?design=' + newCode;
+					html += '<li><a href="'+link+'">' + availableDesigns[keys[i]].name + '</a></li>'
 				}
 				html += "</ul>";
 				return html;
 			}
 
-			function getChildrenOfActiveCategory(designTree, cat) {
+			function replaceDesignInTreeByCategory(dKey, dObj, designTree) {
 				var keys = Object.keys(designTree);
+
+				if (keys.length === 0) {
+					var obj = {};
+					obj[dKey] = dObj;
+					return obj;
+				}
+
+				for (var i = 0; i < keys.length; i++) {
+					if (!designTree[keys[i]].childrenActive) designTree[keys[i]].childrenActive = {};
+					var childrenActive = designTree[keys[i]].childrenActive;
+					var activeKeys = Object.keys(childrenActive);
+
+					// Remove all children of same category (not safe in case of multiple matches)
+					var found = false;
+					for (var j = 0; j < activeKeys.length; j++) {
+						if (childrenActive[activeKeys[j]].category === dObj.category) {
+							childrenActive.splice(j, 1);
+							found = true;
+						}
+					}
+					// No need to search further
+					if (found) {
+						childrenActive[dKey] = dObj;
+						return designTree;
+					}
+					
+					// Find suitable position for child (not accurate for multiple matches)
+					var children = designTree[keys[i]].children;
+					for (var j = 0; j < children.length; j++) {
+						var dataChild = datatree.designs[children[j]];
+						if (dataChild.category === dObj.category)
+							childrenActive[dKey] = dObj;
+					}
+
+					// Do same for active children
+					for (var j = 0; j < activeKeys.length; j++) {
+						var nextTree = {};
+						nextTree[activeKeys[j]] = childrenActive[activeKeys[i]];
+						replaceDesignInTreeByCategory(dKey, dObj, nextTree);
+					}
+				}
+				return designTree;
+			}
+
+			function getRootDesigns() {
+				var keys = Object.keys(datatree.designs);
+				var roots = {};
+				for (var i = 0; i < keys.length; i++) {
+					var d = datatree.designs[keys[i]];
+					if (d.category === "root")
+						roots[keys[i]] = d;
+				}
+				if (roots.length === 0)
+					console.error("TikiMari: No roots defined")
+				return roots
+			}
+
+			function getChildrenOfActiveCategory(designTree, cat) {
 				var designList = getAllActiveDesigns(designTree);
-				var childrenOfCategory = [];
+				var childrenOfCategory = {};
 				for (var i = 0; i < designList.length; i++) {
 					var dli = designList[i];
-					var kids = datatree.designs[dli].children;
+					var dataDesign = datatree.designs[dli]
+					if (dataDesign.category !== cat) continue;
+					var kids = dataDesign.children;
 					for (var j = 0; j < kids.length; j++) {
-						var kid = datatree.designs[kids[j]];
-						if (kid.category === cat)
-							childrenOfCategory.push(kid);
+						childrenOfCategory[kids[j]] = datatree.designs[kids[j]];
 					}
 				}
 				return childrenOfCategory;
@@ -109,7 +197,8 @@
 
 			function cloneObject(obj) {
 				// https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
-				return JSON.parse(JSON.stringify(obj));
+				var clone = JSON.parse(JSON.stringify(obj));
+				return clone;
 			}
 
 			function designCodeToTree(code) {
@@ -130,6 +219,7 @@
 			}
 
 			function designCodeToArray(code) {
+				if (!code) return [];
 				return code.split(/(\d|<.*>)/g).filter(Boolean); // filter removes empty strings
 			}
 
@@ -138,13 +228,11 @@
 				var keys = Object.keys(dtree);
 				for (var i = 0; i < keys.length; i++) {
 					code += keys[i] + "0";
-					var kids = dtree[keys].childrenActive;
+					var kids = dtree[keys[i]].childrenActive;
 					if (kids) {
-						for (var j = 0; j < kids.length; j++) {
-							code += "<";
-							code += designTreeToCode(kids[j]);
-							code += ">";
-						}
+						code += "<";
+						code += designTreeToCode(kids);
+						code += ">";
 					}
 				}
 				return code;
