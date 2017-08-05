@@ -28,19 +28,17 @@
 
 				// Get URL
 				var getParams = getSerializedGetParams();
-				var code = getParams.design;
-				var menu = getParams.menu; // [null, categories, (other)]
 				// Disable redirect until building of design works.
 				// if (!code) window.location.replace("?design=m0<s0<tt0>>");
 
 				// Convert data
-				var designTree = designCodeToTree(code);
+				var designTree = designCodeToTree(getParams.design);
 				console.info("designTree", designTree)
 				var cats = getAllActiveCategories(designTree);
 				console.info("cats", cats)
 				var designTreeList = getAllActiveDesigns(designTree);
 				console.info("designTreeList", designTreeList)
-				var availableItems = getChildrenOfActiveCategory(designTree, menu);
+				var availableItems = getChildrenOfActiveCategory(designTree, getParams.menu);
 				console.info("availableItems", availableItems)
 				var rootDesigns = getRootDesigns();
 				console.info("rootDesigns", rootDesigns)
@@ -48,7 +46,7 @@
 
 				// Display menu
 				var html = "";
-				if (menu)
+				if (getParams.menu)
 					html = getDesignsMenuHTML(availableItems, designTree);
 				else if (cats.length === 0)
 					html = getDesignsMenuHTML(rootDesigns, designTree);
